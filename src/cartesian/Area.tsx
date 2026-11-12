@@ -69,6 +69,7 @@ import { DefaultZIndexes } from '../zIndex/DefaultZIndexes';
 import { propsAreEqual } from '../util/propsAreEqual';
 import { AxisId } from '../state/cartesianAxisSlice';
 import { StackDataPoint } from '../util/stacks/stackTypes';
+import { getIsolatedAreaPoints } from './getIsolatedAreaPoints';
 import { AreaRevealShape, AreaRevealShapeProps } from './AreaRevealShape';
 import { ColorGraphicalItemStyle, ColorStyles2D } from '../theme/themeFill';
 import { RechartsFill } from '../fill/RechartsFill';
@@ -708,8 +709,31 @@ function StaticArea({
     isEntrance,
   };
 
+  const stems = getIsolatedAreaPoints(points, baseLine, layout, connectNulls);
+  const stemStroke = stroke != null && stroke !== 'none' ? stroke : props.fill;
+
   return (
     <>
+      {stems.length > 0 && (
+        <Layer
+          clipPath={needClip ? `url(#clipPath-${clipPathId})` : undefined}
+          className="recharts-area-isolated-points"
+        >
+          {stems.map(stem => (
+            <line
+              key={stem.index}
+              className="recharts-area-isolated-point"
+              x1={stem.x1}
+              y1={stem.y1}
+              x2={stem.x2}
+              y2={stem.y2}
+              stroke={stemStroke}
+              strokeWidth={props.strokeWidth ?? 1}
+              strokeOpacity={props.strokeOpacity}
+            />
+          ))}
+        </Layer>
+      )}
       {points?.length > 1 && (
         <Layer clipPath={needClip ? `url(#clipPath-${clipPathId})` : undefined}>
           <Shape<AreaRevealShapeProps, SVGPathElement>
