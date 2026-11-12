@@ -1256,6 +1256,38 @@ const defaultPieAnimateItems: AnimationInterpolateFn<PieSectorDataItem, PolarLay
   return stepData;
 };
 
+const GEOMETRY_KEYS = [
+  'cx',
+  'cy',
+  'innerRadius',
+  'outerRadius',
+  'startAngle',
+  'endAngle',
+  'midAngle',
+  'paddingAngle',
+  'cornerRadius',
+  'percent',
+  'value',
+] as const;
+
+function hasSameGeometry(a: ReadonlyArray<PieSectorDataItem>, b: ReadonlyArray<PieSectorDataItem>): boolean {
+  return (
+    a.length === b.length && a.every((sector, i) => GEOMETRY_KEYS.every(key => Object.is(sector[key], b[i]?.[key])))
+  );
+}
+
+/**
+ * Returns the previous sectors array while the new one only differs in style (for example a Cell `fillOpacity`),
+ * so that a style-only change does not restart the animation.
+ */
+function useGeometryStableSectors(sectors: ReadonlyArray<PieSectorDataItem>): ReadonlyArray<PieSectorDataItem> {
+  const stable = useRef(sectors);
+  if (stable.current !== sectors && !hasSameGeometry(stable.current, sectors)) {
+    stable.current = sectors;
+  }
+  return stable.current;
+}
+
 function SectorsWithAnimation({
   props,
   previousSectorsRef,
@@ -1271,6 +1303,7 @@ function SectorsWithAnimation({
 }) {
   const { sectors, activeShape, inactiveShape, animationInterpolateFn } = props;
   const resolveLabelTheme = useIndexedLabelThemeResolver(graphicalItems);
+  const animationInput = useGeometryStableSectors(sectors);
 
   const { isAnimating, handleAnimationStart, handleAnimationEnd } = useAnimationCallbacks(
     props.onAnimationStart,
@@ -1288,7 +1321,7 @@ function SectorsWithAnimation({
       <DataLabelColorsContextProvider value={filledShapeLabelColors}>
         <PieLabelListProvider showLabels={!isAnimating} sectors={sectors}>
           <AnimatedItems
-            animationInput={props}
+            animationInput={animationInput}
             animationIdPrefix="recharts-pie-"
             items={sectors}
             previousItemsRef={previousSectorsRef}
