@@ -145,7 +145,16 @@ export const combineTooltipPayload = (
        */
       tooltipEventType === 'axis'
     ) {
-      tooltipPayload = findEntryInArray(sliced, tooltipAxisDataKey, activeLabel);
+      /*
+       * Rows may share the same category value. The first row with a matching label is not necessarily the active one,
+       * so prefer the row at the active index when its category agrees with the active label.
+       */
+      const entryAtIndex: unknown = tooltipPayloadSearcher(sliced, activeIndex, computedData, finalNameKey);
+      const labelOfEntryAtIndex: unknown = getValueByDataKey<unknown, unknown>(entryAtIndex, tooltipAxisDataKey);
+      tooltipPayload =
+        entryAtIndex != null && labelOfEntryAtIndex === activeLabel
+          ? entryAtIndex
+          : findEntryInArray(sliced, tooltipAxisDataKey, activeLabel);
     } else {
       /*
        * This is a problem because it assumes that the index is pointing to the displayed data
