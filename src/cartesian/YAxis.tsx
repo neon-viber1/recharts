@@ -292,7 +292,11 @@ function YAxisImpl(props: PropsWithDefaults) {
    * https://github.com/recharts/recharts/issues/6257
    */
   const synchronizedSettings = useAppSelector(state => selectYAxisSettingsNoDefaults(state, yAxisId));
-  const chartDataLengthEmpty = useAppSelector(state => !state.chartData.chartData?.length);
+  /*
+   * Data may come from the chart or from individual graphical items, so look at the resulting ticks
+   * rather than at chart-level data.
+   */
+  const hasTicks = cartesianTickItems != null && cartesianTickItems.length > 0;
 
   const resetYAxisWidth = useCallback(
     () => dispatch(updateYAxisWidth({ id: yAxisId, width: DEFAULT_Y_AXIS_WIDTH })),
@@ -303,10 +307,10 @@ function YAxisImpl(props: PropsWithDefaults) {
   stableResetYAxisWidth.current = resetYAxisWidth;
 
   useLayoutEffect(() => {
-    if (chartDataLengthEmpty === false && width === 'auto') {
+    if (hasTicks && width === 'auto') {
       stableResetYAxisWidth.current();
     }
-  }, [chartDataLengthEmpty, width, resetYAxisWidth]);
+  }, [hasTicks, width, resetYAxisWidth]);
 
   useLayoutEffect(() => {
     // No dynamic width calculation is done when width !== 'auto'
