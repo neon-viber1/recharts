@@ -1,5 +1,6 @@
 import React, { useCallback, useState } from 'react';
 import { Args } from '@storybook/react-vite';
+import { expect, fireEvent, waitFor } from 'storybook/test';
 import { generateMockData } from '@recharts/devtools';
 import { pageData } from '../data';
 import {
@@ -16,6 +17,7 @@ import {
   RadialBarChart,
   ResponsiveContainer,
   Tooltip,
+  TooltipContentProps,
   XAxis,
   YAxis,
 } from '../../../src';
@@ -560,5 +562,53 @@ export const TooltipWithNegativeOffset = {
     wrapperStyle: {
       width: 100,
     },
+  },
+};
+
+function BoldHoveredRowContent({ payload, label, activeDataKey }: TooltipContentProps) {
+  return (
+    <div style={{ background: 'white', border: '1px solid #ccc', padding: 8 }}>
+      <p style={{ margin: 0 }}>{label}</p>
+      <ul style={{ margin: 0, padding: 0, listStyle: 'none' }}>
+        {payload.map(entry => (
+          <li
+            key={String(entry.dataKey)}
+            data-testid={`tooltip-row-${String(entry.dataKey)}`}
+            style={{ color: entry.color, fontWeight: entry.dataKey === activeDataKey ? 'bold' : 'normal' }}
+          >
+            {entry.name}: {entry.value}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+/**
+ * Shared tooltip with custom content that uses `activeDataKey` to render the row of the hovered Bar in bold.
+ */
+export const BoldHoveredRow = {
+  render: (args: Args) => (
+    <BarChart width={500} height={300} data={pageData}>
+      <XAxis dataKey="name" />
+      <YAxis />
+      <Bar dataKey="uv" fill="#8884d8" id="bar-uv" />
+      <Bar dataKey="pv" fill="#82ca9d" id="bar-pv" />
+      <Tooltip {...args} shared content={BoldHoveredRowContent} />
+    </BarChart>
+  ),
+  args: getStoryArgsFromArgsTypesObject(TooltipArgs),
+  play: async ({ canvasElement }: { canvasElement: HTMLElement }) => {
+    const bar = canvasElement.querySelector('.recharts-bar-rectangle');
+    if (bar == null) {
+      throw new Error('Bar not found');
+    }
+    fireEvent.mouseOver(bar);
+    fireEvent.mouseEnter(bar);
+    await waitFor(() => {
+      const row = canvasElement.querySelector('[data-testid="tooltip-row-uv"]');
+      expect(row).toHaveStyle({ fontWeight: 'bold' });
+    });
+    expect(canvasElement.querySelector('[data-testid="tooltip-row-pv"]')).toHaveStyle({ fontWeight: 'normal' });
   },
 };

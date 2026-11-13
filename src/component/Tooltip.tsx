@@ -12,7 +12,7 @@ import {
 import { TooltipBoundingBox } from './TooltipBoundingBox';
 
 import { getUniqPayload, UniqueOption } from '../util/payload/getUniqPayload';
-import { AllowInDimension, AnimationDuration, EasingInput, Coordinate } from '../util/types';
+import { AllowInDimension, DataKey, AnimationDuration, EasingInput, Coordinate } from '../util/types';
 import { useViewBox } from '../context/chartLayoutContext';
 import { useAccessibilityLayer } from '../context/accessibilityContext';
 import { useElementOffset } from '../util/useElementOffset';
@@ -23,6 +23,7 @@ import {
   selectIsTooltipActive,
   selectTooltipPayload,
 } from '../state/selectors/selectors';
+import { selectHoveredGraphicalItem } from '../state/selectors/tooltipSelectors';
 import { useTooltipPortal } from '../context/tooltipPortalContext';
 import { TooltipTrigger } from '../chart/types';
 import { useAppDispatch, useAppSelector } from '../state/hooks';
@@ -55,6 +56,17 @@ export type TooltipContentProps<TValue extends ValueType = ValueType, TName exte
   active: boolean;
   accessibilityLayer: boolean;
   activeIndex: TooltipIndex | undefined;
+  /**
+   * The `dataKey` of the graphical item (Bar, Line, Pie sector, ...) the pointer is currently over.
+   * Undefined if no graphical item is hovered, for example when hovering the chart background,
+   * or when the tooltip is inactive. Use it to find the matching entry in `payload`, for example to render it in bold.
+   */
+  activeDataKey?: DataKey<unknown, unknown>;
+  /**
+   * The id of the graphical item the pointer is currently over.
+   * Undefined if no graphical item is hovered, or when the tooltip is inactive.
+   */
+  activeGraphicalItemId?: string;
 };
 
 function renderContent<TValue extends ValueType, TName extends NameType>(
@@ -361,6 +373,7 @@ export function Tooltip(outsideProps: TooltipProps<ValueType, NameType>) {
   const coordinate: Coordinate | undefined = useAppSelector(state =>
     selectActiveCoordinate(state, tooltipEventType, trigger, defaultIndexAsString),
   );
+  const hoveredItem = useAppSelector(state => selectHoveredGraphicalItem(state, trigger));
   const payload: TooltipPayload | undefined = payloadFromRedux;
   const tooltipPortalFromContext = useTooltipPortal();
   /*
@@ -402,6 +415,8 @@ export function Tooltip(outsideProps: TooltipProps<ValueType, NameType>) {
     activeIndex,
     coordinate,
     accessibilityLayer,
+    activeDataKey: finalIsActive ? hoveredItem?.dataKey : undefined,
+    activeGraphicalItemId: finalIsActive ? hoveredItem?.graphicalItemId : undefined,
   };
 
   const tooltipElement = (

@@ -1,4 +1,5 @@
 import { createSelector } from 'reselect';
+import { TooltipTrigger } from '../../chart/types';
 import { RechartsRootState } from '../store';
 import {
   AxisRange,
@@ -493,6 +494,28 @@ export const selectActiveTooltipGraphicalItemId: (state: RechartsRootState) => s
     }
 
     return tooltipInteraction.graphicalItemId;
+  },
+);
+
+/**
+ * The graphical item (Bar, Line, Pie sector, ...) that the pointer is currently over, if any.
+ * Unlike {@link selectActiveTooltipDataKey}, this is independent of the tooltip event type,
+ * so it works for shared (axis) tooltips too, where the tooltip payload contains all items.
+ */
+export const selectHoveredGraphicalItem: (
+  state: RechartsRootState,
+  trigger: TooltipTrigger,
+) => { dataKey: DataKey<unknown, unknown> | undefined; graphicalItemId: string | undefined } = createSelector(
+  [
+    (state: RechartsRootState) => state.tooltip.itemInteraction,
+    (_state: RechartsRootState, trigger: TooltipTrigger) => trigger,
+  ],
+  (itemInteraction, trigger) => {
+    const interaction = trigger === 'click' ? itemInteraction.click : itemInteraction.hover;
+    if (!interaction.active) {
+      return { dataKey: undefined, graphicalItemId: undefined };
+    }
+    return { dataKey: interaction.dataKey, graphicalItemId: interaction.graphicalItemId };
   },
 );
 
