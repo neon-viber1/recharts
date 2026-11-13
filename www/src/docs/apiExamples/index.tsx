@@ -32,7 +32,9 @@ import { useOffsetApiExamples } from './useOffset';
 import { usePlotAreaApiExamples } from './usePlotArea';
 import { useChartWidthAndHeightApiExamples } from './useChartWidth';
 import { useXAxisDomainApiExamples } from './useXAxisDomain';
+import { useXAxisScaleDomainApiExamples } from './useXAxisScaleDomain';
 import { useYAxisDomainApiExamples } from './useYAxisDomain';
+import { useYAxisScaleDomainApiExamples } from './useYAxisScaleDomain';
 import { useIsTooltipActiveApiExamples } from './useIsTooltipActive';
 import { useActiveTooltipCoordinateApiExamples } from './useActiveTooltipCoordinate';
 import { getRelativeCoordinateExamples } from './getRelativeCoordinate';
@@ -87,7 +89,9 @@ export const allApiExamples: Record<string, ReadonlyArray<ChartExample>> = {
   useCartesianChartLayout: useCartesianChartLayoutExamples,
   usePolarChartLayout: usePolarChartLayoutExamples,
   useXAxisDomain: useXAxisDomainApiExamples,
+  useXAxisScaleDomain: useXAxisScaleDomainApiExamples,
   useYAxisDomain: useYAxisDomainApiExamples,
+  useYAxisScaleDomain: useYAxisScaleDomainApiExamples,
   getRelativeCoordinate: getRelativeCoordinateExamples,
   useXAxisInverseDataSnapScale: useAxisInverseDataSnapScaleApiExamples,
   useYAxisInverseDataSnapScale: useAxisInverseDataSnapScaleApiExamples,
