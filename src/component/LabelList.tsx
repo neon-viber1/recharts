@@ -113,7 +113,19 @@ interface LabelListProps extends ZIndexable {
    * HTML elements such as `<div>` are not valid inside the chart SVG and may trigger React DOM warnings.
    * If set to a function, the function is called once for each item
    *
+   * The `viewBox` passed to the function is a union of Cartesian and polar view boxes,
+   * so polar properties such as `cx` and `cy` are only available after narrowing it with `'cx' in viewBox`.
+   *
    * @example <LabelList content={CustomizedLabel} />
+   * @example
+   * <LabelList
+   *   content={({ viewBox }) => {
+   *     if (viewBox && 'cx' in viewBox) {
+   *       return <text x={viewBox.cx} y={viewBox.cy} />;
+   *     }
+   *     return null;
+   *   }}
+   * />
    *
    * @see {@link https://recharts.github.io/en-US/examples/BarChartWithMinHeight/ Customized content of LabelList in a BarChart}
    */
