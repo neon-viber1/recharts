@@ -175,12 +175,21 @@ type AxisMapState = {
   xAxis: Record<AxisId, XAxisSettings>;
   yAxis: Record<AxisId, YAxisSettings>;
   zAxis: Record<AxisId, ZAxisSettings>;
+  /**
+   * Ids of the registered X axes, in registration (JSX) order.
+   * Needed because object keys do not preserve insertion order for integer-like ids.
+   */
+  xAxisOrder: ReadonlyArray<AxisId>;
+  /** Ids of the registered Y axes, in registration (JSX) order. */
+  yAxisOrder: ReadonlyArray<AxisId>;
 };
 
 const initialState: AxisMapState = {
   xAxis: {},
   yAxis: {},
   zAxis: {},
+  xAxisOrder: [],
+  yAxisOrder: [],
 };
 
 /**
@@ -193,6 +202,9 @@ const cartesianAxisSlice = createSlice({
   reducers: {
     addXAxis: {
       reducer(state, action: PayloadAction<XAxisSettings>) {
+        if (!state.xAxis[action.payload.id]) {
+          state.xAxisOrder.push(action.payload.id);
+        }
         state.xAxis[action.payload.id] = castDraft(action.payload);
       },
       prepare: prepareAutoBatched<XAxisSettings>(),
@@ -203,6 +215,7 @@ const cartesianAxisSlice = createSlice({
         if (state.xAxis[prev.id] !== undefined) {
           if (prev.id !== next.id) {
             delete state.xAxis[prev.id];
+            state.xAxisOrder = state.xAxisOrder.map(id => (id === prev.id ? next.id : id));
           }
           state.xAxis[next.id] = castDraft(next);
         }
@@ -212,11 +225,15 @@ const cartesianAxisSlice = createSlice({
     removeXAxis: {
       reducer(state, action: PayloadAction<XAxisSettings>) {
         delete state.xAxis[action.payload.id];
+        state.xAxisOrder = state.xAxisOrder.filter(id => id !== action.payload.id);
       },
       prepare: prepareAutoBatched<XAxisSettings>(),
     },
     addYAxis: {
       reducer(state, action: PayloadAction<YAxisSettings>) {
+        if (!state.yAxis[action.payload.id]) {
+          state.yAxisOrder.push(action.payload.id);
+        }
         state.yAxis[action.payload.id] = castDraft(action.payload);
       },
       prepare: prepareAutoBatched<YAxisSettings>(),
@@ -227,6 +244,7 @@ const cartesianAxisSlice = createSlice({
         if (state.yAxis[prev.id] !== undefined) {
           if (prev.id !== next.id) {
             delete state.yAxis[prev.id];
+            state.yAxisOrder = state.yAxisOrder.map(id => (id === prev.id ? next.id : id));
           }
           state.yAxis[next.id] = castDraft(next);
         }
@@ -236,6 +254,7 @@ const cartesianAxisSlice = createSlice({
     removeYAxis: {
       reducer(state, action: PayloadAction<YAxisSettings>) {
         delete state.yAxis[action.payload.id];
+        state.yAxisOrder = state.yAxisOrder.filter(id => id !== action.payload.id);
       },
       prepare: prepareAutoBatched<YAxisSettings>(),
     },

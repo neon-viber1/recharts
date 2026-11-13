@@ -28,7 +28,6 @@ import {
 import {
   AxisId,
   BaseCartesianAxis,
-  CartesianAxisSettings,
   XAxisOrientation,
   XAxisSettings,
   YAxisOrientation,
@@ -1800,16 +1799,6 @@ export const selectErrorBarsSettings: (
   combineRelevantErrorBarSettings,
 );
 
-function compareIds(a: CartesianAxisSettings, b: CartesianAxisSettings) {
-  if (a.id < b.id) {
-    return -1;
-  }
-  if (a.id > b.id) {
-    return 1;
-  }
-  return 0;
-}
-
 const pickAxisOrientation = <T>(_state: RechartsRootState, orientation: T): T => orientation;
 
 const pickMirror = (_state: RechartsRootState, _orientation: unknown, mirror: boolean): boolean => mirror;
@@ -1823,10 +1812,7 @@ const selectAllXAxesWithOffsetType: (
   pickAxisOrientation,
   pickMirror,
   (allAxes: ReadonlyArray<XAxisSettings>, orientation: XAxisOrientation, mirror: boolean) =>
-    allAxes
-      .filter(axis => axis.orientation === orientation)
-      .filter(axis => axis.mirror === mirror)
-      .sort(compareIds),
+    allAxes.filter(axis => axis.orientation === orientation).filter(axis => axis.mirror === mirror),
 );
 
 const selectAllYAxesWithOffsetType: (
@@ -1838,10 +1824,7 @@ const selectAllYAxesWithOffsetType: (
   pickAxisOrientation,
   pickMirror,
   (allAxes: ReadonlyArray<YAxisSettings>, orientation: YAxisOrientation, mirror: boolean) =>
-    allAxes
-      .filter(axis => axis.orientation === orientation)
-      .filter(axis => axis.mirror === mirror)
-      .sort(compareIds),
+    allAxes.filter(axis => axis.orientation === orientation).filter(axis => axis.mirror === mirror),
 );
 
 const getXAxisSize = (offset: ChartOffsetInternal, axisSettings: XAxisSettings): Size => {

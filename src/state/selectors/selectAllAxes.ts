@@ -4,14 +4,30 @@ import { XAxisSettings, YAxisSettings } from '../cartesianAxisSlice';
 
 export const selectAllXAxes: (state: RechartsRootState) => ReadonlyArray<XAxisSettings> = createSelector(
   (state: RechartsRootState) => state.cartesianAxis.xAxis,
-  (xAxisMap): ReadonlyArray<XAxisSettings> => {
-    return Object.values(xAxisMap);
+  (state: RechartsRootState) => state.cartesianAxis.xAxisOrder,
+  (xAxisMap, order): ReadonlyArray<XAxisSettings> => {
+    const result: Array<XAxisSettings> = [];
+    order.forEach(id => {
+      const axis = xAxisMap[id];
+      if (axis) {
+        result.push(axis);
+      }
+    });
+    return result;
   },
 );
 
 export const selectAllYAxes: (state: RechartsRootState) => ReadonlyArray<YAxisSettings> = createSelector(
   (state: RechartsRootState) => state.cartesianAxis.yAxis,
-  (yAxisMap): ReadonlyArray<YAxisSettings> => {
-    return Object.values(yAxisMap);
+  (state: RechartsRootState) => state.cartesianAxis.yAxisOrder,
+  (yAxisMap, order): ReadonlyArray<YAxisSettings> => {
+    const result: Array<YAxisSettings> = [];
+    order.forEach(id => {
+      const axis = yAxisMap[id];
+      if (axis) {
+        result.push(axis);
+      }
+    });
+    return result;
   },
 );
