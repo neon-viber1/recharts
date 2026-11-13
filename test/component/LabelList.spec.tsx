@@ -16,6 +16,8 @@ import {
   ZAxis,
 } from '../../src';
 import { expectScatterPoints } from '../helper/expectScatterPoints';
+import { clearStringCache } from '../../src/util/DOMUtils';
+import { mockGetBoundingClientRect } from '../helper/mockGetBoundingClientRect';
 import { expectLabels } from '../helper/expectLabel';
 
 describe('<LabelList />', () => {
@@ -299,6 +301,58 @@ describe('<LabelList />', () => {
         </ScatterChart>,
       );
       expect(getLabelTexts(container)).toEqual(['2', '3', '4']);
+    });
+  });
+
+  describe('wrapping in horizontal BarChart with narrow bars', () => {
+    const LONG = 'a very long label that cannot possibly fit inside of the available room at all, no matter what';
+    const data = [
+      { name: 'Long label A', uv: 400, long: LONG },
+      { name: 'Long label B', uv: 300, long: LONG },
+      { name: 'Long label C', uv: 200 },
+      { name: 'Long label D', uv: 278 },
+      { name: 'Long label E', uv: 189 },
+    ];
+
+    beforeEach(() => {
+      clearStringCache();
+      mockGetBoundingClientRect({ width: 10, height: 10 });
+    });
+
+    afterEach(() => {
+      vi.restoreAllMocks();
+      clearStringCache();
+    });
+
+    it.each(['top', 'bottom', 'insideTop', 'insideBottom', 'center'] as const)(
+      'should render multi-word labels on a single line with position %s',
+      position => {
+        const { container } = render(
+          <BarChart width={500} height={300} data={data}>
+            <Bar dataKey="uv" barSize={20} isAnimationActive={false}>
+              <LabelList dataKey="name" position={position} />
+            </Bar>
+          </BarChart>,
+        );
+        const labels = container.querySelectorAll('.recharts-label-list text');
+        expect(labels).toHaveLength(5);
+        labels.forEach(label => {
+          expect(label.querySelectorAll('tspan')).toHaveLength(1);
+        });
+      },
+    );
+
+    it('should still wrap labels that are wider than the available space', () => {
+      const { container } = render(
+        <BarChart width={500} height={300} data={data}>
+          <Bar dataKey="uv" barSize={20} isAnimationActive={false}>
+            <LabelList dataKey="long" position="top" />
+          </Bar>
+        </BarChart>,
+      );
+      const labels = container.querySelectorAll('.recharts-label-list text');
+      expect(labels.length).toBeGreaterThan(0);
+      expect(labels[1].querySelectorAll('tspan').length).toBeGreaterThan(1);
     });
   });
 });

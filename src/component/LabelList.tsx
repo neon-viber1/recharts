@@ -70,6 +70,10 @@ export interface CartesianLabelListEntry extends LabelListEntry, TrapezoidViewBo
    */
   viewBox: TrapezoidViewBox;
   parentViewBox?: CartesianViewBoxRequired;
+  /**
+   * Centered labels may be wider than the shape, up to this width.
+   */
+  centeredLabelWidth?: number;
 }
 
 export interface PolarLabelListEntry extends LabelListEntry {
@@ -388,6 +392,7 @@ export function LabelList({ valueAccessor = defaultAccessor, ...restProps }: Pro
                     style={themedProps.style}
                     background={themedProps.background}
                     parentViewBox={entry.parentViewBox}
+                    centeredLabelWidth={'centeredLabelWidth' in entry ? entry.centeredLabelWidth : undefined}
                     value={value}
                     textBreakAll={textBreakAll}
                     viewBox={entry.viewBox}

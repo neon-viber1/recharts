@@ -64,7 +64,7 @@ import { SetTooltipEntrySettings } from '../state/SetTooltipEntrySettings';
 import { SetErrorBarContext } from '../context/ErrorBarContext';
 import { GraphicalItemClipPath, useNeedsClip } from './GraphicalItemClipPath';
 import { useChartLayout } from '../context/chartLayoutContext';
-import { selectBarRectangles } from '../state/selectors/barSelectors';
+import { selectAxisBandSize, selectBarRectangles } from '../state/selectors/barSelectors';
 import { BaseAxisWithScale } from '../state/selectors/axisSelectors';
 import { useAppSelector } from '../state/hooks';
 import { useIsPanorama } from '../context/PanoramaContext';
@@ -702,7 +702,9 @@ function BarLabelListProvider({
   fill,
   stroke,
   unthemedColors,
+  id,
 }: {
+  id: GraphicalItemId;
   showLabels: boolean;
   children: ReactNode;
   rects: ReadonlyArray<BarRectangleItem> | undefined;
@@ -718,6 +720,11 @@ function BarLabelListProvider({
     }),
     [rects, fill, stroke, unthemedColors],
   );
+  const layout = useChartLayout();
+  const isPanorama = useIsPanorama();
+  const bandSize = useAppSelector(state => selectAxisBandSize(state, id, isPanorama));
+  // Bars are narrower than their category band, and labels centered on a bar may use the whole band.
+  const centeredLabelWidth = layout === 'horizontal' ? bandSize : undefined;
   const labelListEntries: ReadonlyArray<CartesianLabelListEntry> | undefined = rects?.map(
     (entry: BarRectangleItem): CartesianLabelListEntry => {
       const viewBox: TrapezoidViewBox = {
@@ -733,6 +740,7 @@ function BarLabelListProvider({
         value: entry.value,
         payload: entry.payload,
         parentViewBox: entry.parentViewBox,
+        centeredLabelWidth,
         viewBox,
         fill: entry.fill,
         // rects skip bars without a size, so the position in rects is not the index of the data entry
@@ -1080,6 +1088,7 @@ function RectanglesWithAnimation({
       fill={props.fill}
       stroke={props.stroke}
       unthemedColors={props.unthemedColors}
+      id={props.id}
     >
       <AnimatedItems
         animationInput={data}

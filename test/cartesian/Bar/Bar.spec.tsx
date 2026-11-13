@@ -905,7 +905,7 @@ describe.each(chartsThatSupportBar)('<Bar /> as a child of $testName', ({ ChartE
           expect(l).toHaveAttribute('height', expect.any(String));
           expect(l).toHaveAttribute('offset', '5');
           expect(l).toHaveAttribute('text-anchor', 'middle');
-          expect(l).toHaveAttribute('width', '78');
+          expect(l).toHaveAttribute('width', '98');
           expect(l).toHaveStyle({ fill: '#808080' });
         });
       });
@@ -950,7 +950,7 @@ describe.each(chartsThatSupportBar)('<Bar /> as a child of $testName', ({ ChartE
             height: '81.66666666666669',
             offset: '5',
             textContent: '100',
-            width: '78',
+            width: '98',
             x: '53.8',
             y: '454.16666666666663',
           },
@@ -958,7 +958,7 @@ describe.each(chartsThatSupportBar)('<Bar /> as a child of $testName', ({ ChartE
             height: '163.33333333333326',
             offset: '5',
             textContent: '200',
-            width: '78',
+            width: '98',
             x: '151.8',
             y: '413.33333333333337',
           },
@@ -966,7 +966,7 @@ describe.each(chartsThatSupportBar)('<Bar /> as a child of $testName', ({ ChartE
             height: '245',
             offset: '5',
             textContent: '300',
-            width: '78',
+            width: '98',
             x: '249.8',
             y: '372.5',
           },
@@ -974,7 +974,7 @@ describe.each(chartsThatSupportBar)('<Bar /> as a child of $testName', ({ ChartE
             height: '326.66666666666663',
             offset: '5',
             textContent: '400',
-            width: '78',
+            width: '98',
             x: '347.8',
             y: '331.6666666666667',
           },
@@ -982,7 +982,7 @@ describe.each(chartsThatSupportBar)('<Bar /> as a child of $testName', ({ ChartE
             height: '408.33333333333337',
             offset: '5',
             textContent: '500',
-            width: '78',
+            width: '98',
             x: '445.8',
             y: '290.83333333333337',
           },

@@ -64,6 +64,13 @@ interface LabelProps extends ZIndexable {
   viewBox?: ViewBox;
   parentViewBox?: ViewBox;
   /**
+   * Labels positioned horizontally centered on a narrow shape (`top`, `bottom`, `insideTop`, `insideBottom`, `center`)
+   * wrap at this width instead of the width of the shape, if it is larger.
+   * Set by graphical items such as Bar; has no effect without `parentViewBox`.
+   * @internal
+   */
+  centeredLabelWidth?: number;
+  /**
    * Function to customize how content is serialized before rendering.
    *
    * This should return a renderable text - something that the {@link Text} component can render.
@@ -468,6 +475,7 @@ export function Label(outerProps: Props) {
   const {
     viewBox: viewBoxFromProps,
     parentViewBox,
+    centeredLabelWidth,
     position,
     value,
     children,
@@ -531,6 +539,7 @@ export function Label(outerProps: Props) {
       offset: props.offset,
       parentViewBox: isPolarViewBox(parentViewBox) ? undefined : parentViewBox,
       clamp: true,
+      centeredLabelWidth,
     });
 
     positionAttrs = {
@@ -552,10 +561,11 @@ export function Label(outerProps: Props) {
    * overridden by the inherited ones.
    * https://github.com/recharts/recharts/issues/5067
    */
+  const { centeredLabelWidth: _centeredLabelWidth, ...publicProps } = props;
   const propsWithViewBox = {
     ...(positionAttrs?.x !== undefined ? { x: positionAttrs.x } : {}),
     ...(positionAttrs?.y !== undefined ? { y: positionAttrs.y } : {}),
-    ...props,
+    ...publicProps,
     viewBox,
   };
 
