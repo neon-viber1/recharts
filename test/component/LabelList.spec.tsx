@@ -9,6 +9,8 @@ import {
   LabelList,
   Line,
   LineChart,
+  Pie,
+  PieChart,
   Scatter,
   ScatterChart,
   XAxis,
@@ -299,6 +301,35 @@ describe('<LabelList />', () => {
         </ScatterChart>,
       );
       expect(getLabelTexts(container)).toEqual(['2', '3', '4']);
+    });
+  });
+
+  describe('content function with polar viewBox', () => {
+    it('should provide cx and cy after narrowing the viewBox', () => {
+      const seen: Array<{ cx: number; cy: number }> = [];
+      render(
+        <PieChart width={400} height={400}>
+          <Pie data={[{ v: 1 }, { v: 2 }]} dataKey="v" isAnimationActive={false}>
+            <LabelList
+              content={({ viewBox }) => {
+                // @ts-expect-error cx is not available on the union without narrowing
+                const unnarrowed: unknown = viewBox?.cx;
+                expect(unnarrowed).toBeDefined();
+                if (viewBox && 'cx' in viewBox) {
+                  seen.push({ cx: viewBox.cx, cy: viewBox.cy });
+                  return <text x={viewBox.cx} y={viewBox.cy} />;
+                }
+                return null;
+              }}
+            />
+          </Pie>
+        </PieChart>,
+      );
+      expect(seen.length).toBeGreaterThan(0);
+      seen.forEach(({ cx, cy }) => {
+        expect(typeof cx).toBe('number');
+        expect(typeof cy).toBe('number');
+      });
     });
   });
 });
