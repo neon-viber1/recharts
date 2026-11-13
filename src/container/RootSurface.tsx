@@ -3,6 +3,7 @@ import { forwardRef, ReactNode } from 'react';
 import { useChartHeight, useChartWidth } from '../context/chartLayoutContext';
 import { useAccessibilityLayer } from '../context/accessibilityContext';
 import { useIsPanorama } from '../context/PanoramaContext';
+import { useIsResponsiveWrapper } from '../context/responsiveWrapperContext';
 import { Surface } from './Surface';
 import { useAppSelector } from '../state/hooks';
 import { selectBrushDimensions } from '../state/selectors/brushSelectors';
@@ -31,10 +32,20 @@ const FULL_WIDTH_AND_HEIGHT = {
   display: 'block',
 };
 
+/*
+ * With responsive=true the wrapper is measured and the SVG is sized from that measurement.
+ * If the SVG stayed in the normal flow, its last size would act as the minimum size of the wrapper's
+ * flex/grid parent and the chart could grow but never shrink. Taking it out of the flow breaks that loop.
+ */
+const OUT_OF_FLOW = { position: 'absolute', top: 0, left: 0 } as const;
+
+const RESPONSIVE_STYLE = { ...FULL_WIDTH_AND_HEIGHT, ...OUT_OF_FLOW };
+
 const MainChartSurface = forwardRef<SVGSVGElement, RootSurfaceProps>((props: RootSurfaceProps, ref) => {
   const width = useChartWidth();
   const height = useChartHeight();
   const hasAccessibilityLayer = useAccessibilityLayer();
+  const isResponsive = useIsResponsiveWrapper();
 
   if (!isPositiveNumber(width) || !isPositiveNumber(height)) {
     return null;
@@ -67,7 +78,7 @@ const MainChartSurface = forwardRef<SVGSVGElement, RootSurfaceProps>((props: Roo
       tabIndex={tabIndex}
       width={width}
       height={height}
-      style={FULL_WIDTH_AND_HEIGHT}
+      style={isResponsive ? RESPONSIVE_STYLE : FULL_WIDTH_AND_HEIGHT}
       ref={ref}
     >
       {children}

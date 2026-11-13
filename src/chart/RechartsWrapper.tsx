@@ -26,6 +26,7 @@ import { LegendPortalContext } from '../context/legendPortalContext';
 import { ReportChartSize } from '../context/chartLayoutContext';
 import { useResponsiveContainerContext } from '../component/ResponsiveContainer';
 import { Percent } from '../util/types';
+import { ResponsiveWrapperProvider } from '../context/responsiveWrapperContext';
 import { useRechartsTheme } from '../theme/RechartsThemeContext';
 
 export type RechartsWrapperProps = ExternalMouseEvents & {
@@ -422,45 +423,47 @@ export const RechartsWrapper = forwardRef<HTMLDivElement | null, RechartsWrapper
     const WrapperDiv = getWrapperDivComponent(responsive);
 
     return (
-      <TooltipPortalContext.Provider value={tooltipPortal}>
-        <LegendPortalContext.Provider value={legendPortal}>
-          <WrapperDiv
-            width={width ?? style?.width ?? theme?.chart?.width}
-            height={height ?? style?.height ?? theme?.chart?.height}
-            className={clsx('recharts-wrapper', className)}
-            style={{
-              position: 'relative',
-              cursor: 'default',
-              /*
-               * The theme overrides the defaults above, but not an explicit size or style.
-               * The size is only included if it is set, so that `undefined` does not erase a size from the theme.
-               */
-              ...theme?.chart,
-              ...(width == null ? {} : { width }),
-              ...(height == null ? {} : { height }),
-              ...style,
-            }}
-            onClick={myOnClick}
-            onContextMenu={myOnContextMenu}
-            onDoubleClick={myOnDoubleClick}
-            onFocus={onFocus}
-            onBlur={onBlur}
-            onKeyDown={onKeyDown}
-            onMouseDown={myOnMouseDown}
-            onMouseEnter={myOnMouseEnter}
-            onMouseLeave={myOnMouseLeave}
-            onMouseMove={myOnMouseMove}
-            onMouseUp={myOnMouseUp}
-            onTouchEnd={myOnTouchEnd}
-            onTouchMove={myOnTouchMove}
-            onTouchStart={myOnTouchStart}
-            ref={innerRef}
-          >
-            <EventSynchronizer />
-            {children}
-          </WrapperDiv>
-        </LegendPortalContext.Provider>
-      </TooltipPortalContext.Provider>
+      <ResponsiveWrapperProvider value={responsive}>
+        <TooltipPortalContext.Provider value={tooltipPortal}>
+          <LegendPortalContext.Provider value={legendPortal}>
+            <WrapperDiv
+              width={width ?? style?.width ?? theme?.chart?.width}
+              height={height ?? style?.height ?? theme?.chart?.height}
+              className={clsx('recharts-wrapper', className)}
+              style={{
+                position: 'relative',
+                cursor: 'default',
+                /*
+                 * The theme overrides the defaults above, but not an explicit size or style.
+                 * The size is only included if it is set, so that `undefined` does not erase a size from the theme.
+                 */
+                ...theme?.chart,
+                ...(width == null ? {} : { width }),
+                ...(height == null ? {} : { height }),
+                ...style,
+              }}
+              onClick={myOnClick}
+              onContextMenu={myOnContextMenu}
+              onDoubleClick={myOnDoubleClick}
+              onFocus={onFocus}
+              onBlur={onBlur}
+              onKeyDown={onKeyDown}
+              onMouseDown={myOnMouseDown}
+              onMouseEnter={myOnMouseEnter}
+              onMouseLeave={myOnMouseLeave}
+              onMouseMove={myOnMouseMove}
+              onMouseUp={myOnMouseUp}
+              onTouchEnd={myOnTouchEnd}
+              onTouchMove={myOnTouchMove}
+              onTouchStart={myOnTouchStart}
+              ref={innerRef}
+            >
+              <EventSynchronizer />
+              {children}
+            </WrapperDiv>
+          </LegendPortalContext.Provider>
+        </TooltipPortalContext.Provider>
+      </ResponsiveWrapperProvider>
     );
   },
 );
