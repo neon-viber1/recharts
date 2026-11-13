@@ -127,6 +127,7 @@ export interface YAxisProps<DataPointType = any, DataValueType = any> extends Om
   /**
    * Unique ID that represents this YAxis.
    * Required when there are multiple YAxes.
+   * YAxes with the same orientation render in the order of the `YAxis` elements, not sorted by id.
    *
    * @defaultValue 0
    */
