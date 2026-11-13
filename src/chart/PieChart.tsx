@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { forwardRef } from 'react';
+import { toGenericChart } from '../util/genericChart';
 import { arrayTooltipSearcher } from '../state/optionsSlice';
 import { defaultPolarChartProps, PolarChart } from './PolarChart';
 import { PolarChartProps, TooltipEventType } from '../util/types';
@@ -20,18 +21,20 @@ export const defaultPieChartProps = {
  * @provides PolarChartContext
  * @public
  */
-export const PieChart = forwardRef<SVGSVGElement, PolarChartProps<unknown>>((props: PolarChartProps<unknown>, ref) => {
-  const propsWithDefaults = resolveDefaultProps(props, defaultPieChartProps);
-  return (
-    <PolarChart
-      chartName="PieChart"
-      defaultTooltipEventType="item"
-      validateTooltipEventTypes={allowedTooltipTypes}
-      tooltipPayloadSearcher={arrayTooltipSearcher}
-      categoricalChartProps={propsWithDefaults}
-      ref={ref}
-    />
-  );
-}) as <DataPointType = any>(
+export const PieChart: <DataPointType = any>(
   props: PolarChartProps<DataPointType> & { ref?: React.Ref<SVGSVGElement> },
-) => React.ReactElement;
+) => React.ReactElement = toGenericChart(
+  forwardRef<SVGSVGElement, PolarChartProps<unknown>>((props: PolarChartProps<unknown>, ref) => {
+    const propsWithDefaults = resolveDefaultProps(props, defaultPieChartProps);
+    return (
+      <PolarChart
+        chartName="PieChart"
+        defaultTooltipEventType="item"
+        validateTooltipEventTypes={allowedTooltipTypes}
+        tooltipPayloadSearcher={arrayTooltipSearcher}
+        categoricalChartProps={propsWithDefaults}
+        ref={ref}
+      />
+    );
+  }),
+);

@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { forwardRef } from 'react';
+import { toGenericChart } from '../util/genericChart';
 import { arrayTooltipSearcher } from '../state/optionsSlice';
 import { PolarChartProps, TooltipEventType } from '../util/types';
 import { resolveDefaultProps } from '../util/resolveDefaultProps';
@@ -20,8 +21,10 @@ export const defaultRadialBarChartProps = {
  * @provides PolarChartContext
  * @public
  */
-export const RadialBarChart = forwardRef<SVGSVGElement, PolarChartProps<unknown>>(
-  (props: PolarChartProps<unknown>, ref) => {
+export const RadialBarChart: <DataPointType = any>(
+  props: PolarChartProps<DataPointType> & { ref?: React.Ref<SVGSVGElement> },
+) => React.ReactElement = toGenericChart(
+  forwardRef<SVGSVGElement, PolarChartProps<unknown>>((props: PolarChartProps<unknown>, ref) => {
     const propsWithDefaults = resolveDefaultProps(props, defaultRadialBarChartProps);
     return (
       <PolarChart
@@ -33,7 +36,5 @@ export const RadialBarChart = forwardRef<SVGSVGElement, PolarChartProps<unknown>
         ref={ref}
       />
     );
-  },
-) as <DataPointType = any>(
-  props: PolarChartProps<DataPointType> & { ref?: React.Ref<SVGSVGElement> },
-) => React.ReactElement;
+  }),
+);
