@@ -11,6 +11,7 @@ import {
   ZAxis,
   Tooltip,
   ScatterShapeProps,
+  Cell,
 } from '../../src';
 import { assertNotNull } from '../helper/assertNotNull';
 import { useAppSelector } from '../../src/state/hooks';
@@ -340,6 +341,37 @@ describe('<Scatter />', () => {
         0,
         expect.any(Object),
       );
+    });
+
+    it('should call onMouseLeave for every entered point with Cells during rapid hover changes, and clear the tooltip', async () => {
+      const user = userEventSetup();
+      const onMouseEnter = vi.fn();
+      const onMouseLeave = vi.fn();
+      const { container } = render(
+        <ScatterChart width={500} height={500}>
+          <Scatter data={data} dataKey="cx" onMouseEnter={onMouseEnter} onMouseLeave={onMouseLeave}>
+            {data.map((_entry, i) => (
+              <Cell key={`cell-${i}`} fill={i % 2 === 0 ? 'red' : 'blue'} />
+            ))}
+          </Scatter>
+          <Tooltip />
+        </ScatterChart>,
+      );
+
+      const getPoints = () => container.querySelectorAll('.recharts-scatter-symbol');
+      expect(getPoints().length).toBeGreaterThan(2);
+
+      // enter A, leave A, enter B, and then jump straight to C without a pause
+      await user.hover(getPoints()[0]);
+      await user.unhover(getPoints()[0]);
+      await user.hover(getPoints()[1]);
+      await user.hover(getPoints()[2]);
+      expect(onMouseEnter).toHaveBeenCalledTimes(3);
+      expect(onMouseLeave).toHaveBeenCalledTimes(2);
+
+      await user.unhover(getPoints()[2]);
+      expect(onMouseLeave).toHaveBeenCalledTimes(3);
+      expect(container.querySelector('.recharts-tooltip-wrapper')).not.toBeVisible();
     });
 
     it('should fire onMouseOver and onMouseOut events when hovering over a scatter point', async () => {
