@@ -52,6 +52,12 @@ export const commentSimilarityExceptions: ReadonlyArray<CommentSimilarityGroup> 
       'dataKey in graphical elements that display their value on an axis describes how they inherit the dataKey from that axis.',
   },
   {
+    components: ['Bar'],
+    props: ['zIndex'],
+    reason:
+      'Bars on the same axis are positioned side by side, so Bar zIndex explains that it controls paint order only and how to overlap bars.',
+  },
+  {
     components: ['Area', 'Line'],
     props: ['legendType'],
     reason:
