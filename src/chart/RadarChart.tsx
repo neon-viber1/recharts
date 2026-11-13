@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { forwardRef } from 'react';
+import { toGenericChart } from '../util/genericChart';
 import { arrayTooltipSearcher } from '../state/optionsSlice';
 import { PolarChartProps, PolarLayout, TooltipEventType } from '../util/types';
 import { resolveDefaultProps } from '../util/resolveDefaultProps';
@@ -41,8 +42,10 @@ type RadarChartProps<DataPointType> = Omit<PolarChartProps<DataPointType>, 'layo
  * @provides PolarChartContext
  * @public
  */
-export const RadarChart = forwardRef<SVGSVGElement, RadarChartProps<unknown>>(
-  (props: RadarChartProps<unknown>, ref) => {
+export const RadarChart: <DataPointType = any>(
+  props: PolarChartProps<DataPointType> & { ref?: React.Ref<SVGSVGElement> },
+) => React.ReactElement = toGenericChart(
+  forwardRef<SVGSVGElement, RadarChartProps<unknown>>((props: RadarChartProps<unknown>, ref) => {
     const propsWithDefaults = resolveDefaultProps(props, defaultRadarChartProps);
     return (
       <PolarChart
@@ -54,7 +57,5 @@ export const RadarChart = forwardRef<SVGSVGElement, RadarChartProps<unknown>>(
         ref={ref}
       />
     );
-  },
-) as <DataPointType = any>(
-  props: PolarChartProps<DataPointType> & { ref?: React.Ref<SVGSVGElement> },
-) => React.ReactElement;
+  }),
+);

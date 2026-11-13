@@ -141,3 +141,11 @@ export const Area = React.memo(AreaFn, propsAreEqual) as <DataPointType = any, V
 // @ts-expect-error we need to set the displayName for debugging purposes
 Area.displayName = 'Area';
 ```
+
+## Generic forwardRef chart components
+
+`forwardRef` erases generic type parameters. Chart components such as `AreaChart` declare an inline generic call signature on the exported const and assign `toGenericChart(forwardRef(...))` (see `src/util/genericChart.ts`). The signature must be inline, because omnidoc reads it from the declaration.
+
+- The call signature returns `ReactElement`, never `ReactNode`: `ReactNode` is a valid JSX return type only since TypeScript 5.1, and Recharts must keep working for TypeScript 4.x consumers.
+- The unavoidable type-weak point is isolated in the single `toGenericChart` helper (one `@ts-expect-error` line), with an explanatory comment. Do not add per-component `as` assertions.
+- The minimum supported TypeScript version and the general "no `as`" rule are unchanged.

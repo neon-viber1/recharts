@@ -223,17 +223,11 @@
     }
   },
   "src/chart/AreaChart.tsx": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 1
-    },
     "@typescript-eslint/no-explicit-any": {
       "count": 1
     }
   },
   "src/chart/BarChart.tsx": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 1
-    },
     "@typescript-eslint/no-explicit-any": {
       "count": 1
     }
@@ -244,33 +238,21 @@
     }
   },
   "src/chart/ComposedChart.tsx": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 1
-    },
     "@typescript-eslint/no-explicit-any": {
       "count": 1
     }
   },
   "src/chart/FunnelChart.tsx": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 1
-    },
     "@typescript-eslint/no-explicit-any": {
       "count": 1
     }
   },
   "src/chart/LineChart.tsx": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 1
-    },
     "@typescript-eslint/no-explicit-any": {
       "count": 1
     }
   },
   "src/chart/PieChart.tsx": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 1
-    },
     "@typescript-eslint/no-explicit-any": {
       "count": 1
     }
@@ -281,17 +263,11 @@
     }
   },
   "src/chart/RadarChart.tsx": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 1
-    },
     "@typescript-eslint/no-explicit-any": {
       "count": 1
     }
   },
   "src/chart/RadialBarChart.tsx": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 1
-    },
     "@typescript-eslint/no-explicit-any": {
       "count": 1
     }
@@ -319,9 +295,6 @@
     }
   },
   "src/chart/ScatterChart.tsx": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 1
-    },
     "@typescript-eslint/no-explicit-any": {
       "count": 1
     }
