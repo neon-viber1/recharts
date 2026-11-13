@@ -34,6 +34,7 @@ import { useChartWidthAndHeightApiExamples } from './useChartWidth';
 import { useXAxisDomainApiExamples } from './useXAxisDomain';
 import { useYAxisDomainApiExamples } from './useYAxisDomain';
 import { useIsTooltipActiveApiExamples } from './useIsTooltipActive';
+import { useTooltipActionsApiExamples } from './useTooltipActions';
 import { useActiveTooltipCoordinateApiExamples } from './useActiveTooltipCoordinate';
 import { getRelativeCoordinateExamples } from './getRelativeCoordinate';
 import { useAxisInverseDataSnapScaleApiExamples } from './useAxisInverseDataSnapScale';
@@ -72,6 +73,7 @@ export const allApiExamples: Record<string, ReadonlyArray<ChartExample>> = {
   ZIndexLayer: zIndexLayerApiExamples,
   DefaultZIndexes: defaultZIndexesApiExamples,
   useIsTooltipActive: useIsTooltipActiveApiExamples,
+  useTooltipActions: useTooltipActionsApiExamples,
   useActiveTooltipCoordinate: useActiveTooltipCoordinateApiExamples,
   useActiveTooltipDataPoints: useActiveTooltipDataPointsApiExamples,
   useActiveTooltipLabel: useActiveTooltipLabelApiExamples,

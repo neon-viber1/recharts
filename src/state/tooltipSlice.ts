@@ -431,6 +431,35 @@ const tooltipSlice = createSlice({
       state.itemInteraction.hover.active = false;
       state.axisInteraction.hover.active = false;
     },
+    /**
+     * Programmatically deactivates every interaction source (mouse, click, keyboard, sync).
+     * Index and coordinate are kept, the same way as in mouseLeaveChart, so that the next interaction animates from them.
+     */
+    hideTooltip(state) {
+      state.itemInteraction.hover.active = false;
+      state.itemInteraction.click.active = false;
+      state.axisInteraction.hover.active = false;
+      state.axisInteraction.click.active = false;
+      state.keyboardInteraction.active = false;
+      state.syncInteraction.active = false;
+      state.syncInteraction.sourceViewBox = undefined;
+    },
+    showTooltipAtIndex(state, action: PayloadAction<TooltipIndex>) {
+      state.syncInteraction.active = false;
+      state.syncInteraction.sourceViewBox = undefined;
+      state.keyboardInteraction.active = false;
+      const next: TooltipInteractionState = {
+        active: true,
+        index: action.payload,
+        dataKey: undefined,
+        graphicalItemId: undefined,
+        coordinate: undefined,
+      };
+      state.axisInteraction.hover = next;
+      state.axisInteraction.click = next;
+      state.itemInteraction.hover = next;
+      state.itemInteraction.click = next;
+    },
     mouseLeaveItem(state) {
       state.itemInteraction.hover.active = false;
     },
@@ -481,6 +510,8 @@ export const {
   setActiveMouseOverItemIndex,
   mouseLeaveItem,
   mouseLeaveChart,
+  hideTooltip,
+  showTooltipAtIndex,
   setActiveClickItemIndex,
   setMouseOverAxisIndex,
   setMouseClickAxisIndex,

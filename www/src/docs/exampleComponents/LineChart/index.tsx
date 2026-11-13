@@ -6,6 +6,7 @@ import DashedLineChart from './DashedLineChart';
 import LineChartConnectNulls from './LineChartConnectNulls';
 import LineChartWithReferenceLines from './LineChartWithReferenceLines';
 import LineChartWithXAxisPadding from './LineChartWithXAxisPadding';
+import LineChartWithTooltipActions from './LineChartWithTooltipActions';
 import SimpleLineChart from './SimpleLineChart';
 import SynchronizedLineChart from './SynchronizedLineChart';
 import SynchronizedDifferentData from './SynchronizedDifferentData';
@@ -23,6 +24,7 @@ import dashedLineChartSource from './DashedLineChart?raw';
 import lineChartConnectNullsSource from './LineChartConnectNulls?raw';
 import lineChartWithReferenceLinesSource from './LineChartWithReferenceLines?raw';
 import lineChartWithXAxisPaddingSource from './LineChartWithXAxisPadding?raw';
+import lineChartWithTooltipActionsSource from './LineChartWithTooltipActions?raw';
 import simpleLineChartSource from './SimpleLineChart?raw';
 import synchronizedLineChartSource from './SynchronizedLineChart?raw';
 import synchronizedDifferentDataSource from './SynchronizedDifferentData?raw';
@@ -51,6 +53,12 @@ import AnimatedTimeSeriesExample, {
 import AnimatedTimeSeriesExampleSource from './AnimatedTimeSeriesExample.tsx?raw';
 
 export const lineChartExamples = {
+  LineChartWithTooltipActions: {
+    Component: LineChartWithTooltipActions,
+    sourceCode: lineChartWithTooltipActionsSource,
+    name: 'Line Chart With Tooltip Actions',
+    description: 'Buttons inside the chart use useTooltipActions to show the tooltip at an index or hide it.',
+  },
   SimpleLineChart: {
     Component: SimpleLineChart,
     sourceCode: simpleLineChartSource,

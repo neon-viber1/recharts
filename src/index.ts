@@ -235,6 +235,7 @@ export {
   useXAxisTicks,
   useYAxisTicks,
   useCartesianScale,
+  useTooltipActions,
 } from './hooks';
 
 export type { CartesianDataPoint, ScaleFunction, InverseScaleFunction } from './hooks';
