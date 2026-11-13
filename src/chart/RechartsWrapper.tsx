@@ -386,6 +386,17 @@ export const RechartsWrapper = forwardRef<HTMLDivElement | null, RechartsWrapper
       [dispatch, onMouseUp],
     );
 
+    /*
+     * A native drag session swallows all following mouse events, including mouseup,
+     * and shows the "no-drop" cursor. Chart content (text, SVG) is never meant to be dragged,
+     * so cancel implicit drags unless the user explicitly marked an element as draggable.
+     */
+    const myOnDragStart = useCallback((e: React.DragEvent<HTMLDivElement>) => {
+      if (e.target instanceof Element && e.target.closest('[draggable="true"]') == null) {
+        e.preventDefault();
+      }
+    }, []);
+
     const myOnTouchStart = useCallback(
       (e: React.TouchEvent<HTMLDivElement>) => {
         dispatch(externalEventAction({ handler: onTouchStart, reactEvent: e }));
@@ -446,6 +457,7 @@ export const RechartsWrapper = forwardRef<HTMLDivElement | null, RechartsWrapper
             onFocus={onFocus}
             onBlur={onBlur}
             onKeyDown={onKeyDown}
+            onDragStart={myOnDragStart}
             onMouseDown={myOnMouseDown}
             onMouseEnter={myOnMouseEnter}
             onMouseLeave={myOnMouseLeave}

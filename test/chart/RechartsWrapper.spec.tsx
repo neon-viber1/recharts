@@ -39,6 +39,47 @@ describe('RechartsWrapper', () => {
     expect(onMouseLeaveSpy).toHaveBeenCalledTimes(1);
   });
 
+  describe('native drag prevention', () => {
+    it('should prevent dragstart from chart svg and text, and keep mouse handlers working', () => {
+      const onMouseDown = vi.fn();
+      const onMouseUp = vi.fn();
+      const { container } = render(
+        <BarChart width={800} height={400} onMouseDown={onMouseDown} onMouseUp={onMouseUp}>
+          <text className="label">hello</text>
+        </BarChart>,
+      );
+      const svg = container.querySelector('svg');
+      const text = container.querySelector('text.label');
+      assertNotNull(svg);
+      assertNotNull(text);
+      expect(fireEvent.dragStart(svg)).toBe(false);
+      expect(fireEvent.dragStart(text)).toBe(false);
+
+      const wrapper = container.querySelector('.recharts-wrapper');
+      assertNotNull(wrapper);
+      fireEvent.mouseDown(wrapper);
+      fireEvent.mouseUp(wrapper);
+      act(() => {
+        vi.runOnlyPendingTimers();
+      });
+      expect(onMouseDown).toHaveBeenCalledTimes(1);
+      expect(onMouseUp).toHaveBeenCalledTimes(1);
+    });
+
+    it('should not prevent dragstart from an explicitly draggable element', () => {
+      const { container } = render(
+        <RechartsWrapper width={100} height={100} responsive={false}>
+          <div draggable="true">
+            <span data-testid="inner">drag me</span>
+          </div>
+        </RechartsWrapper>,
+      );
+      const inner = container.querySelector('[data-testid="inner"]');
+      assertNotNull(inner);
+      expect(fireEvent.dragStart(inner)).toBe(true);
+    });
+  });
+
   it('should disconnect the previous ResizeObserver before creating a new one when the DOM node changes', () => {
     const observeSpy = vi.fn();
     const disconnectSpy = vi.fn();
