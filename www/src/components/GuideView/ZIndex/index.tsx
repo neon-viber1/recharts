@@ -4,6 +4,8 @@ import BandedChart from '../../../docs/exampleComponents/ComposedChart/BandedCha
 import BandedChartSource from '../../../docs/exampleComponents/ComposedChart/BandedChart.tsx?raw';
 import { TargetBlankLink } from '../../Shared/TargetBlankLink.tsx';
 import { useLocale } from '../../../utils/LocaleUtils.ts';
+import OverlappingBars from './OverlappingBars.tsx';
+import OverlappingBarsSource from './OverlappingBars.tsx?raw';
 import PrahaMetro from './PrahaMetro.tsx';
 import PrahaMetroSource from './PrahaMetro.tsx?raw';
 
@@ -47,6 +49,20 @@ export function ZIndex() {
         Component={PrahaMetro}
         sourceCode={PrahaMetroSource}
         stackBlitzTitle="Recharts Praha Metro Example"
+      />
+      <h2>Overlapping bars</h2>
+      <p>
+        <code>zIndex</code> only controls the paint order. It does not change where a Bar is positioned. Bars that share
+        the same axis are placed side by side, no matter what their <code>zIndex</code> is.
+      </p>
+      <p>
+        To render one Bar behind another, put them on different X axes using <code>xAxisId</code>, hide the secondary
+        axis with <code>hide</code>, and use <code>zIndex</code> to put the narrower Bar in front of the wider one.
+      </p>
+      <CodeEditorWithPreview
+        Component={OverlappingBars}
+        sourceCode={OverlappingBarsSource}
+        stackBlitzTitle="Recharts Overlapping Bars Example"
       />
       <h2>Limitations</h2>
       <p>

@@ -2376,3 +2376,55 @@ describe('activeBar with missing data', () => {
     expectTooltipPayload(container, 'Page C', ['uv : 9800']);
   });
 });
+
+describe('Bar zIndex and overlapping', () => {
+  const overlapData = [
+    { name: 'A', a: 100, b: 50 },
+    { name: 'B', a: 80, b: 40 },
+  ];
+
+  function getBarCenters(container: Element, selector: string): number[] {
+    return Array.from(container.querySelectorAll(selector)).map(
+      el => Number(el.getAttribute('x')) + Number(el.getAttribute('width')) / 2,
+    );
+  }
+
+  it('should place bars on the same axis side by side regardless of zIndex', () => {
+    const { container } = rechartsTestRender(
+      <BarChart width={400} height={300} data={overlapData}>
+        <XAxis dataKey="name" />
+        <Bar dataKey="a" barSize={50} zIndex={1} isAnimationActive={false} className="bar-a" />
+        <Bar dataKey="b" barSize={25} zIndex={2} isAnimationActive={false} className="bar-b" />
+      </BarChart>,
+    );
+    const aCenters = getBarCenters(container, '.bar-a .recharts-rectangle');
+    const bCenters = getBarCenters(container, '.bar-b .recharts-rectangle');
+    expect(aCenters).toHaveLength(2);
+    expect(bCenters).toHaveLength(2);
+    expect(Math.abs(aCenters[0] - bCenters[0])).toBeGreaterThan(10);
+    expect(Math.abs(aCenters[1] - bCenters[1])).toBeGreaterThan(10);
+  });
+
+  it('should overlap bars on separate axes and layer them by zIndex', () => {
+    const { container } = rechartsTestRender(
+      <BarChart width={400} height={300} data={overlapData}>
+        <XAxis xAxisId="primary" dataKey="name" />
+        <XAxis xAxisId="secondary" dataKey="name" hide />
+        <Bar xAxisId="primary" dataKey="a" barSize={50} zIndex={1} isAnimationActive={false} className="bar-a" />
+        <Bar xAxisId="secondary" dataKey="b" barSize={25} zIndex={2} isAnimationActive={false} className="bar-b" />
+      </BarChart>,
+    );
+    const aCenters = getBarCenters(container, '.bar-a .recharts-rectangle');
+    const bCenters = getBarCenters(container, '.bar-b .recharts-rectangle');
+    expect(aCenters).toHaveLength(2);
+    expect(bCenters).toHaveLength(2);
+    expect(Math.abs(aCenters[0] - bCenters[0])).toBeLessThan(1);
+    expect(Math.abs(aCenters[1] - bCenters[1])).toBeLessThan(1);
+
+    const back = container.querySelector('.bar-a .recharts-rectangle');
+    const front = container.querySelector('.bar-b .recharts-rectangle');
+    assertNotNull(back);
+    assertNotNull(front);
+    assertZIndexLayerOrder({ front, back });
+  });
+});

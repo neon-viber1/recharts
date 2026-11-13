@@ -415,6 +415,11 @@ export interface BarProps<DataPointType, ValueAxisType>
    * Components with higher zIndex will appear in front of components with lower zIndex.
    * If undefined or 0, the content is rendered in the default layer without portals.
    *
+   * Note that `zIndex` only controls the paint order. It does not change the horizontal position of the bars:
+   * bars that share an axis are always placed side by side, regardless of their `zIndex`.
+   * To make bars overlap, give them different `xAxisId` values (hide the secondary axis with `hide`),
+   * and use `zIndex` to put the narrower bar in front of the wider one.
+   *
    * @since 3.4
    * @defaultValue 300
    * @see {@link https://recharts.github.io/en-US/guide/zIndex/ Z-Index and layers guide}
