@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { AxisId, defaultAxisId } from './state/cartesianAxisSlice';
 import {
   BaseAxisWithScale,
@@ -451,6 +452,10 @@ export const useActiveTooltipDataPoints = <T = unknown>(): ReadonlyArray<T> | un
  *
  * The values of the domain are calculated based on the data and the `dataKey` of the axis.
  *
+ * Note that this is the domain before the scale extends it to nice tick values, so it may be narrower than what the axis visually shows.
+ * For example, data in the range `[-200, 9800]` gives `[-200, 9800]` here, while the rendered axis spans `[-3500, 10500]`.
+ * To get the domain that the axis renders, use {@link useXAxisScaleDomain}; to get the tick values use {@link useXAxisTicks}.
+ *
  * If the chart has a Brush, the domain will be filtered to the brushed indexes if the hook is used outside a Brush context,
  * and the full domain will be returned if the hook is used inside a Brush context.
  *
@@ -473,6 +478,10 @@ export const useXAxisDomain = (xAxisId: AxisId = defaultAxisId): NumberDomain | 
  *
  * The values of the domain are calculated based on the data and the `dataKey` of the axis.
  *
+ * Note that this is the domain before the scale extends it to nice tick values, so it may be narrower than what the axis visually shows.
+ * For example, data in the range `[-200, 9800]` gives `[-200, 9800]` here, while the rendered axis spans `[-3500, 10500]`.
+ * To get the domain that the axis renders, use {@link useYAxisScaleDomain}; to get the tick values use {@link useYAxisTicks}.
+ *
  * Does not interact with Brushes, as Y-axes do not support brushing.
  *
  * @param yAxisId The `yAxisId` of the Y-axis. Defaults to `0` if not provided.
@@ -483,6 +492,78 @@ export const useXAxisDomain = (xAxisId: AxisId = defaultAxisId): NumberDomain | 
 export const useYAxisDomain = (yAxisId: AxisId = defaultAxisId): NumberDomain | CategoricalDomain | undefined => {
   const isPanorama = useIsPanorama();
   return useAppSelector(state => selectAxisDomain(state, 'yAxis', yAxisId, isPanorama));
+};
+
+/**
+ * Returns the domain of the scale that the x-axis actually renders with.
+ *
+ * Unlike {@link useXAxisDomain}, which returns the domain computed from the data, the `domain` prop,
+ * reference elements and error bars, this hook returns the domain after the scale has been finalised:
+ * it includes the extension to "nice" tick values, and respects `'auto'`, function domains,
+ * expressions such as `'dataMin - 100'`, and `allowDataOverflow`.
+ * It is the visual extent of the axis, and matches the extent of the ticks returned by {@link useXAxisTicks} when nice ticks are used.
+ *
+ * For example, with data in the range `[-200, 9800]` and default settings,
+ * `useXAxisDomain` returns `[-200, 9800]` while this hook returns `[-3500, 10500]`.
+ *
+ * If the chart has a Brush, the domain follows the same brushing behavior as {@link useXAxisDomain}.
+ *
+ * Returns `undefined` if used outside a chart context, or if the axis does not exist.
+ *
+ * @example
+ * ```tsx
+ * const domain = useXAxisScaleDomain();
+ * if (domain) {
+ *   const [min, max] = domain; // for numerical axes, e.g. [-3500, 10500]
+ * }
+ * ```
+ *
+ * @param xAxisId The `xAxisId` of the XAxis. Defaults to `0` if not provided.
+ * @returns The domain of the rendered scale, or `undefined`.
+ * @since 3.11
+ * @public
+ */
+export const useXAxisScaleDomain = (xAxisId: AxisId = defaultAxisId): NumberDomain | CategoricalDomain | undefined => {
+  const isPanorama = useIsPanorama();
+  const scale = useAppSelector(state => selectAxisScale(state, 'xAxis', xAxisId, isPanorama));
+  // d3 returns a fresh array on every call, so memoize by scale identity to keep the result referentially stable.
+  return useMemo(() => scale?.domain(), [scale]);
+};
+
+/**
+ * Returns the domain of the scale that the y-axis actually renders with.
+ *
+ * Unlike {@link useYAxisDomain}, which returns the domain computed from the data, the `domain` prop,
+ * reference elements and error bars, this hook returns the domain after the scale has been finalised:
+ * it includes the extension to "nice" tick values, and respects `'auto'`, function domains,
+ * expressions such as `'dataMin - 100'`, and `allowDataOverflow`.
+ * It is the visual extent of the axis, and matches the extent of the ticks returned by {@link useYAxisTicks} when nice ticks are used.
+ *
+ * For example, with data in the range `[-200, 9800]` and default settings,
+ * `useYAxisDomain` returns `[-200, 9800]` while this hook returns `[-3500, 10500]`.
+ *
+ * Y-axes do not interact with Brushes.
+ *
+ * Returns `undefined` if used outside a chart context, or if the axis does not exist.
+ *
+ * @example
+ * ```tsx
+ * const domain = useYAxisScaleDomain();
+ * if (domain) {
+ *   const [min, max] = domain; // for numerical axes, e.g. [-3500, 10500]
+ * }
+ * ```
+ *
+ * @param yAxisId The `yAxisId` of the YAxis. Defaults to `0` if not provided.
+ * @returns The domain of the rendered scale, or `undefined`.
+ * @since 3.11
+ * @public
+ */
+export const useYAxisScaleDomain = (yAxisId: AxisId = defaultAxisId): NumberDomain | CategoricalDomain | undefined => {
+  const isPanorama = useIsPanorama();
+  const scale = useAppSelector(state => selectAxisScale(state, 'yAxis', yAxisId, isPanorama));
+  // d3 returns a fresh array on every call, so memoize by scale identity to keep the result referentially stable.
+  return useMemo(() => scale?.domain(), [scale]);
 };
 
 /**
