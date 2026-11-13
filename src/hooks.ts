@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { AxisId, defaultAxisId } from './state/cartesianAxisSlice';
 import {
   BaseAxisWithScale,
@@ -9,7 +10,8 @@ import {
   selectAxisWithScale,
   selectRenderedTicksOfAxis,
 } from './state/selectors/axisSelectors';
-import { useAppSelector } from './state/hooks';
+import { useAppDispatch, useAppSelector } from './state/hooks';
+import { hideTooltip as hideTooltipAction, showTooltipAtIndex } from './state/tooltipSlice';
 import { useIsPanorama } from './context/PanoramaContext';
 import {
   selectActiveLabel,
@@ -522,4 +524,60 @@ export const useActiveTooltipCoordinate = (): Coordinate | undefined => {
     x: coordinate.x,
     y: coordinate.y,
   };
+};
+
+/**
+ * The functions returned by {@link useTooltipActions}.
+ */
+type TooltipActions = {
+  /**
+   * Hides the {@link Tooltip}, cursor and active dots, regardless of whether they were
+   * activated by mouse, touch, click or keyboard. The next user interaction shows the Tooltip again.
+   *
+   * Does nothing if the Tooltip is not active. A Tooltip with the `active={true}` prop stays visible.
+   */
+  hideTooltip: () => void;
+  /**
+   * Shows the {@link Tooltip} for the data point at the given index.
+   * Passing `null`, `undefined`, a negative number, or a non-integer hides the Tooltip instead.
+   */
+  showTooltip: (index: number | string | null | undefined) => void;
+};
+
+/**
+ * Returns functions for controlling the {@link Tooltip} programmatically,
+ * for example to close it when opening a modal.
+ *
+ * Outside of a chart the returned functions do nothing.
+ *
+ * @example
+ * const { hideTooltip } = useTooltipActions();
+ * return <button onClick={hideTooltip}>Close tooltip</button>;
+ *
+ * @returns {TooltipActions} Stable `hideTooltip` and `showTooltip` functions.
+ * @since 3.11
+ * @public
+ */
+export const useTooltipActions = (): TooltipActions => {
+  const dispatch = useAppDispatch();
+  return useMemo(
+    (): TooltipActions => ({
+      hideTooltip: (): void => {
+        dispatch(hideTooltipAction());
+      },
+      showTooltip: (index: number | string | null | undefined): void => {
+        if (index == null) {
+          dispatch(hideTooltipAction());
+          return;
+        }
+        const numeric = Number(index);
+        if (index === '' || !Number.isInteger(numeric) || numeric < 0) {
+          dispatch(hideTooltipAction());
+          return;
+        }
+        dispatch(showTooltipAtIndex(String(index)));
+      },
+    }),
+    [dispatch],
+  );
 };

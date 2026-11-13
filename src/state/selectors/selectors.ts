@@ -126,6 +126,21 @@ export const selectTooltipPayloadConfigurations: (
   combineTooltipPayloadConfigurations,
 );
 
+/**
+ * The index that the active coordinate should be computed for when no raw coordinate is known:
+ * either an index set programmatically (see useTooltipActions) or the Tooltip `defaultIndex`.
+ */
+const selectIndexForFallbackCoordinate: (
+  state: RechartsRootState,
+  tooltipEventType: TooltipEventType | undefined,
+  trigger: TooltipTrigger,
+  defaultIndex: TooltipIndex | undefined,
+) => TooltipIndex | undefined = createSelector(
+  [selectTooltipInteractionState, pickDefaultIndex],
+  (interaction: TooltipInteractionState, defaultIndex: TooltipIndex | undefined): TooltipIndex | undefined =>
+    interaction.coordinate == null && interaction.index != null ? interaction.index : defaultIndex,
+);
+
 export const selectCoordinateForDefaultIndex: (
   state: RechartsRootState,
   tooltipEventType: TooltipEventType | undefined,
@@ -145,13 +160,32 @@ export const selectCoordinateForDefaultIndex: (
   combineCoordinateForDefaultIndex,
 );
 
+const selectCoordinateForActiveIndex: (
+  state: RechartsRootState,
+  tooltipEventType: TooltipEventType | undefined,
+  trigger: TooltipTrigger,
+  defaultIndex: TooltipIndex | undefined,
+) => Coordinate | PolarCoordinate | undefined = createSelector(
+  [
+    selectChartWidth,
+    selectChartHeight,
+    selectChartLayout,
+    selectChartOffsetInternal,
+    selectTooltipAxisTicks,
+    selectIndexForFallbackCoordinate,
+    selectTooltipPayloadConfigurations,
+    selectPolarViewBox,
+  ],
+  combineCoordinateForDefaultIndex,
+);
+
 export const selectActiveCoordinate: (
   state: RechartsRootState,
   tooltipEventType: TooltipEventType | undefined,
   trigger: TooltipTrigger,
   defaultIndex: TooltipIndex | undefined,
 ) => Coordinate | PolarCoordinate | undefined = createSelector(
-  [selectTooltipInteractionState, selectCoordinateForDefaultIndex],
+  [selectTooltipInteractionState, selectCoordinateForActiveIndex],
   (
     tooltipInteractionState: TooltipInteractionState,
     defaultIndexCoordinate: Coordinate | PolarCoordinate | undefined,

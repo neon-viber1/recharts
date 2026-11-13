@@ -25,6 +25,7 @@ export const apiCates = [
       'Tooltip',
       'DefaultTooltipContent',
       'useIsTooltipActive',
+      'useTooltipActions',
       'useActiveTooltipCoordinate',
       'useActiveTooltipDataPoints',
       'useActiveTooltipLabel',
