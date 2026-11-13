@@ -3482,3 +3482,61 @@ describe('<Legend />', () => {
     });
   });
 });
+
+describe('two charts with a Legend on one page', () => {
+  function ChartA() {
+    return (
+      <LineChart width={400} height={300} data={numericalData}>
+        <Line dataKey="percent" />
+        <Legend />
+      </LineChart>
+    );
+  }
+
+  function ChartB() {
+    return (
+      <BarChart width={500} height={200} data={numericalData}>
+        <Bar dataKey="percent" />
+        <Legend verticalAlign="middle" layout="vertical" align="right" />
+      </BarChart>
+    );
+  }
+
+  it('should render both legends without update depth errors', () => {
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    mockGetBoundingClientRect({ width: 100, height: 30 });
+    const { container } = rechartsTestRender(
+      <>
+        <ChartA />
+        <ChartB />
+      </>,
+    );
+    expect(container.querySelectorAll('.recharts-legend-wrapper')).toHaveLength(2);
+    expect(errorSpy).not.toHaveBeenCalled();
+    errorSpy.mockRestore();
+  });
+
+  it('should keep legend size in each chart own store', () => {
+    const spyA = vi.fn();
+    const spyB = vi.fn();
+    function SizeSpy({ spy }: { spy: Mock }) {
+      spy(useAppSelector(selectLegendSize));
+      return null;
+    }
+    mockGetBoundingClientRect({ width: 100, height: 30 });
+    rechartsTestRender(
+      <>
+        <LineChart width={400} height={300} data={numericalData}>
+          <Legend />
+          <SizeSpy spy={spyA} />
+        </LineChart>
+        <BarChart width={500} height={200} data={numericalData}>
+          <Legend />
+          <SizeSpy spy={spyB} />
+        </BarChart>
+      </>,
+    );
+    expect(spyA).toHaveBeenLastCalledWith({ width: 100, height: 30 });
+    expect(spyB).toHaveBeenLastCalledWith({ width: 100, height: 30 });
+  });
+});
