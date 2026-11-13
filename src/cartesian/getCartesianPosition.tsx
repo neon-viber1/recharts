@@ -75,6 +75,12 @@ export type GetCartesianPositionOptions = {
    * This is useful for preventing labels from overflowing the chart area.
    */
   clamp?: boolean;
+  /**
+   * Only has an effect together with `clamp` and `parentViewBox`.
+   * Labels that are horizontally centered on the shape (`top`, `bottom`, `insideTop`, `insideBottom`, `center`)
+   * may use this width, if it is larger than the width of the shape, so that labels on narrow shapes do not wrap early.
+   */
+  centeredLabelWidth?: number;
 };
 
 export type CalculatedCartesianPosition = {
@@ -87,13 +93,28 @@ export type CalculatedCartesianPosition = {
 };
 
 /**
+ * Labels that are horizontally centered on a narrow shape can extend sideways past the shape itself.
+ * Shapes without any width keep a width of zero, which means "do not wrap".
+ *
+ * @param shapeWidth width of the shape that the label belongs to
+ * @param centeredLabelWidth room that the label may use around its center
+ * @returns width available for the label, never smaller than the shape width
+ */
+function getCenteredLabelWidth(shapeWidth: number, centeredLabelWidth: number | undefined): number {
+  if (centeredLabelWidth == null || shapeWidth <= 0) {
+    return shapeWidth;
+  }
+  return Math.max(shapeWidth, centeredLabelWidth);
+}
+
+/**
  * Calculates the position and alignment for a generic element in a Cartesian coordinate system.
  *
  * @param options - The options including viewBox, position, and offset.
  * @returns The calculated x, y, alignment and size.
  */
 export const getCartesianPosition = (options: GetCartesianPositionOptions): CalculatedCartesianPosition => {
-  const { viewBox, position, offset = 0, parentViewBox: parentViewBoxFromOptions, clamp } = options;
+  const { viewBox, position, offset = 0, parentViewBox: parentViewBoxFromOptions, clamp, centeredLabelWidth } = options;
 
   const { x, y, height, upperWidth, lowerWidth } = cartesianViewBoxToTrapezoid(viewBox);
 
@@ -136,7 +157,7 @@ export const getCartesianPosition = (options: GetCartesianPositionOptions): Calc
 
     if (clamp && parentViewBox) {
       result.height = Math.max(y - parentViewBox.y, 0);
-      result.width = upperWidth;
+      result.width = getCenteredLabelWidth(upperWidth, centeredLabelWidth);
     }
     return result;
   }
@@ -150,7 +171,7 @@ export const getCartesianPosition = (options: GetCartesianPositionOptions): Calc
     };
     if (clamp && parentViewBox) {
       result.height = Math.max(parentViewBox.y + parentViewBox.height - (y + height), 0);
-      result.width = lowerWidth;
+      result.width = getCenteredLabelWidth(lowerWidth, centeredLabelWidth);
     }
     return result;
   }
@@ -184,6 +205,14 @@ export const getCartesianPosition = (options: GetCartesianPositionOptions): Calc
   }
 
   const sizeAttrs = clamp && parentViewBox ? { width: midHeightWidth, height } : {};
+  // Positions centered on the shape horizontally may use all the room around the center.
+  const centeredSizeAttrs =
+    clamp && parentViewBox
+      ? {
+          width: getCenteredLabelWidth(midHeightWidth, centeredLabelWidth),
+          height,
+        }
+      : {};
 
   if (position === 'insideLeft') {
     return {
@@ -211,7 +240,7 @@ export const getCartesianPosition = (options: GetCartesianPositionOptions): Calc
       y: y + verticalOffset,
       horizontalAnchor: 'middle',
       verticalAnchor: verticalStart,
-      ...sizeAttrs,
+      ...centeredSizeAttrs,
     };
   }
 
@@ -221,7 +250,7 @@ export const getCartesianPosition = (options: GetCartesianPositionOptions): Calc
       y: y + height - verticalOffset,
       horizontalAnchor: 'middle',
       verticalAnchor: verticalEnd,
-      ...sizeAttrs,
+      ...centeredSizeAttrs,
     };
   }
 
@@ -288,7 +317,7 @@ export const getCartesianPosition = (options: GetCartesianPositionOptions): Calc
     y: y + height / 2,
     horizontalAnchor: 'middle',
     verticalAnchor: 'middle',
-    ...sizeAttrs,
+    ...centeredSizeAttrs,
   };
 };
 

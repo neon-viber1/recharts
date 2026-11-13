@@ -875,4 +875,71 @@ describe('useCartesianPosition', () => {
       expect(actual).toEqual(expected);
     });
   });
+
+  describe('with centeredLabelWidth', () => {
+    const viewBox: TrapezoidViewBox = { x: 100, y: 50, width: 20, upperWidth: 20, lowerWidth: 20, height: 100 };
+    const parentViewBox: CartesianViewBoxRequired = { x: 50, y: 10, width: 400, height: 300 };
+    const widened = 120;
+
+    it.each(['top', 'bottom', 'insideTop', 'insideBottom', 'center'] as const)(
+      'should use the room around the center for position %s',
+      position => {
+        const result = getCartesianPosition({
+          viewBox,
+          parentViewBox,
+          position,
+          clamp: true,
+          centeredLabelWidth: 120,
+        });
+        expect(result.width).toBe(widened);
+      },
+    );
+
+    it.each(['top', 'bottom', 'insideTop', 'insideBottom', 'center'] as const)(
+      'should keep the shape width for position %s without the option',
+      position => {
+        const result = getCartesianPosition({ viewBox, parentViewBox, position, clamp: true });
+        expect(result.width).toBe(20);
+      },
+    );
+
+    it.each(['left', 'right', 'insideLeft', 'insideRight'] as const)(
+      'should not change the width for position %s',
+      position => {
+        const withOption = getCartesianPosition({
+          viewBox,
+          parentViewBox,
+          position,
+          clamp: true,
+          centeredLabelWidth: 120,
+        });
+        const without = getCartesianPosition({ viewBox, parentViewBox, position, clamp: true });
+        expect(withOption).toEqual(without);
+      },
+    );
+
+    it('should not change coordinates', () => {
+      const withOption = getCartesianPosition({
+        viewBox,
+        parentViewBox,
+        position: 'top',
+        clamp: true,
+        centeredLabelWidth: 120,
+      });
+      const without = getCartesianPosition({ viewBox, parentViewBox, position: 'top', clamp: true });
+      expect(withOption.x).toBe(without.x);
+      expect(withOption.y).toBe(without.y);
+    });
+
+    it('should keep zero width shapes at zero width', () => {
+      const result = getCartesianPosition({
+        viewBox: { ...viewBox, width: 0, upperWidth: 0, lowerWidth: 0 },
+        parentViewBox,
+        position: 'top',
+        clamp: true,
+        centeredLabelWidth: 120,
+      });
+      expect(result.width).toBe(0);
+    });
+  });
 });
